@@ -111,12 +111,12 @@ try:
 			shortened['last'] = row['Participant Name']
 			shortened['mail'] = row['Participant E-Mail']
 			shortened['team'] = row['Team Name']
-			shortened['ascii'] = row['Team Name ASCII']
 			shortened['affiliation'] = row['Affiliation Name']
 			shortened['contestsite'] = row['Contestsite']
 			shortened['coach'] = row['Contestsiteorganizer']
 			for k in shortened:
 				assert shortened[k] is not None
+			shortened['ascii'] = row['Team Name ASCII'] if 'Team Name ASCII' in row else None
 			participants.append(DictObj(shortened))
 
 	contestsites = {p.contestsite : DictObj({
@@ -247,7 +247,7 @@ try:
 			}
 			res = icpc.post('team/register/customcoach', json=data)
 			if res.status_code != 200:
-				if team.name != team.ascii:
+				if team.ascii is not None and team.name != team.ascii:
 					if questionary.confirm(f'{team.name} {Fore.RED}failed{Style.RESET_ALL}, retry as {team.ascii}?', default=True, erase_when_done=True).unsafe_ask():
 						team.name = team.ascii
 						data['name'] = team.ascii
@@ -259,7 +259,8 @@ try:
 				continue
 			else:
 				team.id = res.json()
-			print(f'{team.name} created')
+			team.id = known[team.name]
+			print(f'{team.name} created ({team.id})')
 
 			# add contestants
 			for contestant in team.contestants:
@@ -274,13 +275,13 @@ try:
 					}
 					contest_icpc = icpc.post('person/registration/registerviasuggest', json=data)
 					if contest_icpc.status_code != 200:
-						print(f'  {contestant.first} {contestant.last} {Fore.RED}failed{Style.RESET_ALL} (SKIPPING)')
+						print(f'  {contestant.first} {contestant.last} {Fore.RED}failed A{Style.RESET_ALL} (SKIPPING)')
 						continue
 					contest_icpc = DictObj(contest_icpc.json())
 				elif len(contest_icpc) == 1:
 					contest_icpc = contest_icpc[0]
 				else:
-					print(f'  {contestant.first} {contestant.last} {Fore.RED}failed{Style.RESET_ALL} (SKIPPING)')
+					print(f'  {contestant.first} {contestant.last} {Fore.RED}failed B{Style.RESET_ALL} (SKIPPING)')
 					continue
 
 				data = [{
@@ -297,7 +298,7 @@ try:
 				#we could add multiple users at once i guess?
 				tmp = icpc.post(f'team/members/team/{team.id}/add', json=data)
 				if tmp.status_code != 200:
-					print(f'  {contestant.first} {contestant.last} {Fore.RED}failed{Style.RESET_ALL} (SKIPPING)')
+					print(f'  {contestant.first} {contestant.last} {Fore.RED}failed C{Style.RESET_ALL} (SKIPPING)')
 					continue
 
 				print(f'  {contestant.first} {contestant.last} added')
