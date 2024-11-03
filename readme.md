@@ -5,6 +5,7 @@ to import teams you need a `.csv` file with the following fields:
 - `Participant Name`
 - `Participant E-Mail`
 - `Team Name`
+- `Team Name ASCII` (optional fallback)
 - `Contestsite`
 - `Affiliation Name`
 - `Contestsiteorganizer` (will be added as coach)
