@@ -259,7 +259,6 @@ try:
 				continue
 			else:
 				team.id = res.json()
-			team.id = known[team.name]
 			print(f'{team.name} created ({team.id})')
 
 			# add contestants
